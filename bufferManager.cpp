@@ -14,7 +14,12 @@ BufferManager::BufferManager()
 BufferManager::~BufferManager()
 {
 	blockNum = 0;
+
+	while (head->next != tail) removeBlock(head->next);
+	delete head;
+	delete tail;
 }
+
 
 void BufferManager::removeBlock(BlockNode* node)
 {
@@ -22,6 +27,16 @@ void BufferManager::removeBlock(BlockNode* node)
 	filenameToBlock.erase(node->block->filename + "-" + to_string(node->block->ID));
 	delete node;
 	blockNum--;
+}
+
+
+void BufferManager::writeBlock(const char* filename, int ID)
+{
+	Block* block = filenameToBlock[string(filename) + "-" + to_string(ID)]->block;
+	FILE* file = fopen(("data/" + string(filename) + ".mdf").c_str(),"rb+");
+	fseek(file, ID*BLOCK_SIZE, SEEK_SET);
+	fwrite(block->content, BLOCK_SIZE, 1, file);
+	fclose(file);
 }
 
 
@@ -39,13 +54,4 @@ Block* BufferManager::loadBlock(const char* filename, int ID)
 	filenameToBlock[string(filename) + "-" + to_string(ID)] = node;
 
 	return block;
-}
-
-void BufferManager::writeBlock(const char* filename, int ID)
-{
-	Block* block = filenameToBlock[string(filename) + "-" + to_string(ID)]->block;
-	FILE* file = fopen(("data/" + string(filename) + ".mdf").c_str(),"rb+");
-	fseek(file, ID*BLOCK_SIZE, SEEK_SET);
-	fwrite(block->content, BLOCK_SIZE, 1, file);
-	fclose(file);
 }

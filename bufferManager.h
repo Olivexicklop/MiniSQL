@@ -7,18 +7,6 @@
 
 using namespace std;
 
-struct Block
-{
-	string filename;
-	int ID;
-
-	bool dir;
-	bool pin;
-
-	char content[BLOCK_SIZE];
-};
-
-
 struct BlockNode
 {
 	Block* block;
@@ -37,6 +25,11 @@ struct BlockNode
 	{
 		pre->next = next;
 		next->pre = pre;
+	}
+
+	~BlockNode()
+	{
+		remove();
 	}
 };
 
