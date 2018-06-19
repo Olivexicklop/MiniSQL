@@ -62,6 +62,8 @@ void API::createTable(const string &SQL)
 		}
 	}
 	//调用catalogManager的create table（传入table
+
+	minisql::recordManager->createTable(tbl.table_name.c_str());
 	//调用catalogManager的create index（传入index
 	//调用indexManager的create index（传入？？
 }
