@@ -10,6 +10,12 @@
 #include <sstream>
 #include <list>
 #include <vector>
+#include "Interpreter.h"
+#include "recordManager.h"
+#include "fileManager.h"
+#include "bufferManager.h"
+//#include "catalogManager.h"
+
 using namespace std;
 
 //enum{PRIMARY, UNIQUE};
@@ -58,7 +64,9 @@ struct Condition
 };
 //改为vector
 typedef vector<Condition> Condition_list;
+//typedef Condition_list condList;
 typedef Condition_list condList;
+
 
 //	用于描述索引信息
 struct Index
@@ -66,6 +74,20 @@ struct Index
 	string index_name;
 	string table_name;
 	string attr_name;	//索引所对应的属性
+};
+
+class minisql
+{
+	
+
+public:
+	//minisql();
+	//~minisql();
+
+	static BufferManager* bufferManager;
+
+	static RecordManager* recordManager;
+	
 };
 
 

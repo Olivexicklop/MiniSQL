@@ -1,16 +1,16 @@
 #ifndef API_H
 #define API_H 
 
-#include "minisql.h"
+
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <list>
 #include <vector>
 #include <algorithm>
+#include "minisql.h"
 using namespace std;
 
-typedef Condition_list condList;
 
 class API {
 public:
@@ -30,7 +30,7 @@ public:
 
 private:
 	vector<string> split(const string &SQL, const string &pattern);
-	void drawResult(const Table &table, vector<string>select_value);
+	void drawResult(const struct Table &table, vector<string>select_value);
 };
 
 #endif
