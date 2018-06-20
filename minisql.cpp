@@ -24,11 +24,20 @@ int main()
 
 	minisql::bufferManager = new BufferManager();
 	minisql::recordManager = new RecordManager();
-	while (online)
+    minisql::catalogManager = new CatalogManager();
+	//while (online)
 	{
 		cout << "MiniSQL-->> ";
 		SQL="";//清空SQL语句
-		SQL=Interpreter(SQL);
+		//SQL=Interpreter(SQL);
+        vector<string>* colname = new vector<string>;
+        string s = "name1";
+       // colname->push_back(s);
+        vector<short>* colType = new vector<short>;
+        colType->push_back(TYPE_INT);
+        vector<char>* colUnique = new vector<char>;
+        colUnique->push_back(UNIQUE);
+        minisql::catalogManager->createTable("qwe", "primary", colname, colType, colUnique);
 		cout << SQL << endl;
 	}
    // cout << "\t\t              谢谢使用，再见！ " << endl;

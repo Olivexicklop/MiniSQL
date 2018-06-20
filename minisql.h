@@ -10,11 +10,11 @@
 #include <sstream>
 #include <list>
 #include <vector>
-#include "Interpreter.h"
+//#include "Interpreter.h"
 #include "recordManager.h"
 #include "fileManager.h"
 #include "bufferManager.h"
-//#include "catalogManager.h"
+#include "catalogManager.h"
 
 using namespace std;
 
@@ -37,23 +37,23 @@ struct Attribute
 };
 
 //	用于描述表的信息
-struct Table
-{
-	string table_name;  //表名
-	int attr_count;		//表中属性的总个数
-	Attribute attrs[32];	//表的所有属性列表, 最多32个属性
-
-	int searchAttrId(string att_name) {
-		for (int i = 0; i < attr_count; i++)
-		{
-			if (attrs[i].attr_name == att_name)
-			{
-				return i;
-			}
-		}
-		return -1;
-	}
-};
+//struct Table
+//{
+//    string table_name;  //表名
+//    int attr_count;        //表中属性的总个数
+//    Attribute attrs[32];    //表的所有属性列表, 最多32个属性
+//
+//    int searchAttrId(string att_name) {
+//        for (int i = 0; i < attr_count; i++)
+//        {
+//            if (attrs[i].attr_name == att_name)
+//            {
+//                return i;
+//            }
+//        }
+//        return -1;
+//    }
+//};
 
 //	用于描述判断条件的信息
 struct Condition
@@ -69,12 +69,12 @@ typedef Condition_list condList;
 
 
 //	用于描述索引信息
-struct Index
-{
-	string index_name;
-	string table_name;
-	string attr_name;	//索引所对应的属性
-};
+//struct Index
+//{
+//    string index_name;
+//    string table_name;
+//    string attr_name;    //索引所对应的属性
+//};
 
 class minisql
 {
@@ -87,6 +87,8 @@ public:
 	static BufferManager* bufferManager;
 
 	static RecordManager* recordManager;
+    
+    static CatalogManager* catalogManager;
 	
 };
 

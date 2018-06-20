@@ -1,4 +1,5 @@
 #include "bufferManager.h"
+#include <iostream>
 
 using namespace std;
 
@@ -33,7 +34,7 @@ void BufferManager::removeBlock(BlockNode* node)
 void BufferManager::writeBlock(const char* filename, int ID)
 {
 	Block* block = filenameToBlock[string(filename) + "-" + to_string(ID)]->block;
-	FILE* file = fopen(("data/" + string(filename) + ".mdf").c_str(),"rb+");
+	FILE* file = fopen(("tables/" + string(filename) + ".mdf").c_str(),"rb+");
 	fseek(file, ID*BLOCK_SIZE, SEEK_SET);
 	fwrite(block->content, BLOCK_SIZE, 1, file);
 	fclose(file);
@@ -43,7 +44,9 @@ void BufferManager::writeBlock(const char* filename, int ID)
 Block* BufferManager::loadBlock(const char* filename, int ID)
 {
 	Block* block = new Block;
-	FILE* file = fopen(("data/" + string(filename) + ".mdf").c_str(),"rb+");
+	FILE* file = fopen(("/Users/olive/c++ project/MiniSQL Project/MiniSQL Project/tables/"+string(filename) + ".mdf").c_str(),"rb+");
+    if (file)
+        cout << "success";
 	fseek(file, ID*BLOCK_SIZE, SEEK_SET);
 	fread(block->content, BLOCK_SIZE, 1, file);
 	fclose(file);

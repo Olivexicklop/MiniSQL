@@ -6,7 +6,7 @@
 
 class FileManager
 {
-	string filename;
+	string FileName;
 
 	Block* currentBlock;
 
@@ -14,10 +14,10 @@ class FileManager
 	int offSet;
 	int availableID;
 
-	int recordNum;
+	
 	int recordOfEachBlock;
 
-	int id;
+	int ids;
 
 public:
 	FileManager(const char* FileName);
@@ -26,12 +26,13 @@ public:
 
 	static void createFile(const char* filename);
 	static void removeFile(const char* filename);
-	void addValue(const char* value);
+	int addValue(const char* value);
 	void removeValue(int id);
 	void updateFirstBlock();
 	void findCurrentBlock(int ID);
 	void removeValue(const char* value);
 	int getNextValue(char* data);
+    int recordNum;
 };
 
 

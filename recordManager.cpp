@@ -76,11 +76,12 @@ int RecordManager::filter(const char* tableName, const char* data,
 	Table* table = Manager->getTable(tableName);
 
 	char dataOut[FIXED_LENGTH];
-	type = table->getValue(data, column, dataOut);
-	if (type == INT_TYPE)
+	type = table->getColValue(column.c_str(), data, dataOut);
+	if (type == TYPE_INT)
 	{
 		return intCmp(dataOut, Operator, operand);
 	}
+    return 000;
 }
 
 bool RecordManager::intCmp(const char* data, string Operator, const char* operand)
@@ -93,6 +94,6 @@ bool RecordManager::intCmp(const char* data, string Operator, const char* operan
 	if (Operator == LESS) return a < b;
 	if (Operator == EQUAL_GREATER) return a >= b;
 	if (Operator == EQUAL_LESS) return a <= b;
-	//return false;
+	return false;
 }
 

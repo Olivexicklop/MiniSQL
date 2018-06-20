@@ -2,6 +2,7 @@
 #define __BUFFER_MANAGER_H__
 
 #include <string>
+#include <stdio.h>
 #include <unordered_map>
 #include "constant.h"
 

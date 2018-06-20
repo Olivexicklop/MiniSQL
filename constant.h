@@ -1,6 +1,8 @@
 #ifndef _CONSTANT_H_
 #define _CONSTANT_H_
 
+#include <string>
+
 #define BLOCK_SIZE 4096
 #define MAX_BLOCK_NUM 100
 #define FIXED_LENGTH 124
@@ -12,10 +14,7 @@
 #define EQUAL_GREATER ">="
 #define EQUAL_LESS "<="
 
-#include <string>
-
 using namespace std;
-
 
 struct Block
 {
@@ -28,32 +27,21 @@ struct Block
 	char content[BLOCK_SIZE];
 };
 
-// struct availableIDNode
-// {
-// 	int firstAvailableID;
 
-// 	struct availableIDList* next;
-// 	struct availableIDList* pre;
 
-// 	void insert(availableIDNode* node)
-// 	{
-// 		pre = node;
-// 		next = node->next;
-// 		node->next->pre = this;
-// 		node->next = this;
-// 	}
+// Max length of table/index/column name
+#define MAX_NAME_LENGTH 31
 
-// 	void remove()
-// 	{
-// 		pre->next = next;
-// 		next->pre = pre;
-// 	}
+// Data types
+#define TYPE_NULL 0
+#define TYPE_CHAR 255
+#define TYPE_INT 256
+#define TYPE_FLOAT 257
 
-// 	~availableIDNode()
-// 	{
-// 		remove();
-// 	}
-// };
+//unque
+#define UNIQUE 1
+#define NOT_UNIQUE 0
+#define ERROR_UNIQUE -1
 
 
 
