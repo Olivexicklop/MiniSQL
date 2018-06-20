@@ -1,44 +1,100 @@
+#include <cstring>
 #include <iostream>
+#include <string>
+
+#include "constant.h"
+#include "utils.h"
+#include "interpreter.h"
+//#include "index/bpTree.h"
 #include "minisql.h"
+
 using namespace std;
 
-bool online = 1;
+// Managers
+BufferManager* MiniSQL::bufferManager = NULL;
+CatalogManager* MiniSQL::catalogManager = NULL;
+RecordManager* MiniSQL::recordManager = NULL;
+IndexManager* MiniSQL::indexManager = NULL;
 
-BufferManager* minisql::bufferManager = nullptr;
+// Init mini SQL system
+void MiniSQL::init()
+{
+    // Check if catalog/tables.mdb exists
+    if (!Utils::fileExists("catalog/tables"))
+        HeapFile::createFile("catalog/tables", MAX_NAME_LENGTH*2);
 
-RecordManager* minisql::recordManager = nullptr;
+    // Check if catalog/indices.mdb exists
+    if (!Utils::fileExists("catalog/indices"))
+        HeapFile::createFile("catalog/indices", MAX_NAME_LENGTH*3);
 
-CatalogManager* minisql::catalogManager = nullptr;
+    // Init managers
+    bufferManager = new BufferManager();
+    catalogManager = new CatalogManager();
+    recordManager = new RecordManager();
+    indexManager = new IndexManager();
+}
 
+// Clean up managers
+void MiniSQL::cleanUp()
+{
+    delete bufferManager;
+    delete catalogManager;
+    delete recordManager;
+    delete indexManager;
+}
+
+// Get buffer manager
+BufferManager* MiniSQL::getBufferManager()
+{
+    return bufferManager;
+}
+
+// Get catalog manager
+CatalogManager* MiniSQL::getCatalogManager()
+{
+    return catalogManager;
+}
+
+// Get record manager
+RecordManager* MiniSQL::getRecordManager()
+{
+    return recordManager;
+}
+
+// Get index manager
+IndexManager* MiniSQL::getIndexManager()
+{
+    return indexManager;
+}
+
+// Main function
 int main()
 {
-	string SQL;
-	//打印软件信息
-    cout << endl;
-	// cout << "\t\t***********************************************" << endl;
-	// cout << "\t\t             欢迎使用 MiniSQL !" << endl;
-	// cout << "\t\t               Version (1.0)  " << endl;
-	// cout << "\t\t               请输入SQL语句 " << endl;
-	// cout << "\t\t***********************************************" << endl;
+    //MiniSQL::init();
+    Interpreter* interpreter = new Interpreter();
+    
+    string sql;
+
+	cout << endl;
+	cout << "\t\t***********************************************" << endl;
+	cout << "\t\t             欢迎使用 MiniSQL !" << endl;
+	cout << "\t\t               Version (1.0)  " << endl;
+	cout << "\t\t               请输入SQL语句 " << endl;
+	cout << "\t\t***********************************************" << endl;
 	cout << endl << endl;
 
-	minisql::bufferManager = new BufferManager();
-	minisql::recordManager = new RecordManager();
-    minisql::catalogManager = new CatalogManager();
-	//while (online)
-	{
-		cout << "MiniSQL-->> ";
-		SQL="";//清空SQL语句
-		//SQL=Interpreter(SQL);
-        vector<string>* colname = new vector<string>;
-        string s = "name1";
-       // colname->push_back(s);
-        vector<short>* colType = new vector<short>;
-        colType->push_back(TYPE_INT);
-        vector<char>* colUnique = new vector<char>;
-        colUnique->push_back(UNIQUE);
-        minisql::catalogManager->createTable("qwe", "primary", colname, colType, colUnique);
-		cout << SQL << endl;
-	}
-   // cout << "\t\t              谢谢使用，再见！ " << endl;
+    while (!interpreter->isExiting())
+    {
+        if (interpreter->tokenVecEmpty())
+            cout << endl << "minisql> ";
+        else
+            cout << "    ...> ";
+
+        getline(cin, sql);
+        interpreter->execute(sql.c_str());
+    }
+    
+    delete interpreter;
+    MiniSQL::cleanUp();
+    return 0;
 }
