@@ -5,7 +5,7 @@
 #include "constant.h"
 #include "table.h"
 #include "fileManager.h"
-#include "general.h"
+#include "utils.h"
 
 #include "minisql.h"
 #include "catalogManager.h"
@@ -99,12 +99,12 @@ int Api::select(
 }
 
 // Insert record. Return true if success
-bool Api::insert(const char* tableName, const vector<string>* value)
+bool Api::insert(const char* tableName, const vector<char*>* value)
 {
     // Get manager and table
     CatalogManager* catalogManager = MiniSQL::getCatalogManager();
     RecordManager* recordManager = MiniSQL::getRecordManager();
-    //IndexManager* indexManager = MiniSQL::getIndexManager();
+    IndexManager* indexManager = MiniSQL::getIndexManager();
 
     Table* table = catalogManager->getTable(tableName);
     if (table == NULL)
