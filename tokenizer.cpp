@@ -5,21 +5,21 @@
 using namespace std;
 
 // Token type
-const int Tokenizer::TOKEN_INVALID = -1;
-const int Tokenizer::TOKEN_IDLE = 0;
-const int Tokenizer::TOKEN_END = 1;
-const int Tokenizer::TOKEN_IDENTIFIER = 2;
-const int Tokenizer::TOKEN_NUMBER = 3;
-const int Tokenizer::TOKEN_STRING_SINGLE = 4;
-const int Tokenizer::TOKEN_STRING_DOUBLE = 5;
-const int Tokenizer::TOKEN_SYMBOL = 6;
-const int Tokenizer::TOKEN_OPERATOR = 7;
+const int Tokenizer::INVALID = -1;
+const int Tokenizer::START = 0;
+const int Tokenizer::END = 1;
+const int Tokenizer::FIGURE = 2;
+const int Tokenizer::NUMBER = 3;
+const int Tokenizer::STRING_SINGLE = 4;
+const int Tokenizer::STRING_DOUBLE = 5;
+const int Tokenizer::SYMBOL = 6;
+const int Tokenizer::OPERATOR = 7;
 
 // Read all tokens in SQL statement. Return number of semicolons read
 int Tokenizer::getTokens(const char* sql, vector<string>* tokens, vector<int>* type)
 {
     int endCount = 0;
-    int state = TOKEN_IDLE;
+    int state = START;
     int cursor = 0;
     string token = "";
 
@@ -27,38 +27,38 @@ int Tokenizer::getTokens(const char* sql, vector<string>* tokens, vector<int>* t
     {
         bool moveCursor = true;
         char c = sql[cursor];
-        if (state != TOKEN_STRING_SINGLE && state != TOKEN_STRING_DOUBLE && c >= 'A' && c <= 'Z')
+        if (state != STRING_SINGLE && state != STRING_DOUBLE && c >= 'A' && c <= 'Z')
             c += 'a' - 'A';
 
-        if (state == TOKEN_IDLE)
+        if (state == START)
         {
             if (c == ';')
             {
-                state = TOKEN_END;
+                state = END;
                 moveCursor = false;
             }
             else if ((c >= 'a' && c <= 'z') || c == '_')
             {
-                state = TOKEN_IDENTIFIER;
+                state = FIGURE;
                 moveCursor = false;
             }
             else if ((c >= '0' && c <= '9') || c == '+' || c == '-' || c == '.')
             {
-                state = TOKEN_NUMBER;
+                state = NUMBER;
                 moveCursor = false;
             }
             else if (c == '\'')
-                state = TOKEN_STRING_SINGLE;
+                state = STRING_SINGLE;
             else if (c == '"')
-                state = TOKEN_STRING_DOUBLE;
+                state = STRING_DOUBLE;
             else if (c == ',' || c == '(' || c == ')' || c == '*')
             {
-                state = TOKEN_SYMBOL;
+                state = SYMBOL;
                 moveCursor = false;
             }
             else if (c == '=' || c == '<' || c == '>')
             {
-                state = TOKEN_OPERATOR;
+                state = OPERATOR;
                 moveCursor = false;
             }
             else if (c == ' ' || c == '\n' || c == '\t') {}
@@ -68,91 +68,91 @@ int Tokenizer::getTokens(const char* sql, vector<string>* tokens, vector<int>* t
             {
                 cerr << "ERROR: [Tokenizer::getTokens] Unknown character '" << c << "'!" << endl;
                 tokens->push_back(token);
-                type->push_back(TOKEN_INVALID);
+                type->push_back(INVALID);
                 token.clear();
             }
         }
-        else if (state == TOKEN_END)
+        else if (state == END)
         {
             token += c;
 
             tokens->push_back(token);
-            type->push_back(TOKEN_END);
+            type->push_back(END);
             token.clear();
             endCount++;
 
-            state = TOKEN_IDLE;
+            state = START;
         }
-        else if (state == TOKEN_IDENTIFIER)
+        else if (state == FIGURE)
         {
             if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_')
                 token += c;
             else
             {
                 tokens->push_back(token);
-                type->push_back(TOKEN_IDENTIFIER);
+                type->push_back(FIGURE);
                 token.clear();
 
-                state = TOKEN_IDLE;
+                state = START;
                 moveCursor = false;
             }
         }
-        else if (state == TOKEN_NUMBER)
+        else if (state == NUMBER)
         {
             if ((c >= '0' && c <= '9') || c == '+' || c == '-' || c == '.')
                 token += c;
             else
             {
                 tokens->push_back(token);
-                type->push_back(TOKEN_NUMBER);
+                type->push_back(NUMBER);
                 token.clear();
 
-                state = TOKEN_IDLE;
+                state = START;
                 moveCursor = false;
             }
         }
-        else if (state == TOKEN_STRING_SINGLE || state == TOKEN_STRING_DOUBLE)
+        else if (state == STRING_SINGLE || state == STRING_DOUBLE)
         {
-            if ((c == '\'' && state == TOKEN_STRING_SINGLE) || (c == '"' && state == TOKEN_STRING_DOUBLE))
+            if ((c == '\'' && state == STRING_SINGLE) || (c == '"' && state == STRING_DOUBLE))
             {
                 tokens->push_back(token);
                 type->push_back(state);
                 token.clear();
 
-                state = TOKEN_IDLE;
+                state = START;
             }
             else if (c == '\n' || c == 0)
             {
                 cerr << "ERROR: [Tokenizer::getTokens] New line symbol reached when reading string!" << endl;
                 tokens->push_back(token);
-                type->push_back(TOKEN_INVALID);
+                type->push_back(INVALID);
                 token.clear();
-                state = TOKEN_IDLE;
+                state = START;
             }
             else
                 token += c;
         }
-        else if (state == TOKEN_SYMBOL)
+        else if (state == SYMBOL)
         {
             token += c;
 
             tokens->push_back(token);
-            type->push_back(TOKEN_SYMBOL);
+            type->push_back(SYMBOL);
             token.clear();
 
-            state = TOKEN_IDLE;
+            state = START;
         }
-        else if (state == TOKEN_OPERATOR)
+        else if (state == OPERATOR)
         {
             if (c == '=' || c == '<' || c == '>')
                 token += c;
             else
             {
                 tokens->push_back(token);
-                type->push_back(TOKEN_OPERATOR);
+                type->push_back(OPERATOR);
                 token.clear();
 
-                state = TOKEN_IDLE;
+                state = START;
                 moveCursor = false;
             }
         }
