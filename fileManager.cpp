@@ -10,7 +10,7 @@ FileManager::FileManager(const char* FILENAME)
 {
 	FileName = FILENAME;
 
-	BufferManager* Manager = minisql::bufferManager;
+	BufferManager* Manager = MiniSQL::bufferManager;
 	currentBlock = Manager->getCurrentBlock(FileName.c_str(), 0);
 	availableID = *(reinterpret_cast<int*>(currentBlock->content+FIXED_LENGTH));
     recordNum = *(reinterpret_cast<int*>(currentBlock->content+DATA_LENGTH));
@@ -82,17 +82,23 @@ int FileManager::addValue(const char* value)
 
 	memcpy(currentBlock->content + offSet, value, DATA_LENGTH);
 	char status = 'Y';
-	memcpy(currentBlock->content + FIXED_LENGTH - 1, &status,1);
+	memcpy(currentBlock->content + FIXED_LENGTH - 1, &status,1);//?
 
 	updateFirstBlock();
 	//dirty
+    
+    char temp[200];
+    memcpy(temp, currentBlock->content, DATA_LENGTH);
+    cout << temp;
+    
+    
     return idToReturn;
 
 }
 
 void FileManager::updateFirstBlock()
 {
-	BufferManager* Manager = minisql::bufferManager;
+	BufferManager* Manager = MiniSQL::bufferManager;
 	currentBlock = Manager->getCurrentBlock(FileName.c_str(), 0);
     memcpy(currentBlock->content + DATA_LENGTH, &recordNum, 4);
 	memcpy(currentBlock->content + FIXED_LENGTH, &availableID, 4);
@@ -102,7 +108,7 @@ void FileManager::updateFirstBlock()
 
 void FileManager::findCurrentBlock(int ID)
 {
-	BufferManager* Manager = minisql::bufferManager;
+	BufferManager* Manager = MiniSQL::bufferManager;
 	currentBlock = Manager->getCurrentBlock(FileName.c_str(), ID / recordOfEachBlock);
     ids = ID;
 	offSet = (ids % recordOfEachBlock) * fixedLength;

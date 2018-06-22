@@ -31,7 +31,7 @@ int RecordManager::select(const char* tableName,
 	string column, string Operator, const char* operand)
 {
 	FileManager* file = new FileManager(("record/" + string(tableName)).c_str());
-	CatalogManager* Manager = minisql::catalogManager;
+    CatalogManager* Manager = MiniSQL::catalogManager;
 
 	int sum = 0, id = 0;
 
@@ -48,6 +48,7 @@ int RecordManager::select(const char* tableName,
 	delete file;
 	return sum;
 }
+
 
 // int RecordManager::Delete(const char* tableName)
 // {
@@ -72,7 +73,7 @@ int RecordManager::filter(const char* tableName, const char* data,
 {
 	int type;
 
-	CatalogManager* Manager = minisql::catalogManager;
+	CatalogManager* Manager = MiniSQL::catalogManager;
 	Table* table = Manager->getTable(tableName);
 
 	char dataOut[FIXED_LENGTH];

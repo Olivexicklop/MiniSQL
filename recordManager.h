@@ -26,6 +26,8 @@ public:
 	int filter(const char* tableName, const char* data, string column, string Operator, const char* operand);
 	bool intCmp(const char* data, string Operator, const char* operand);
 	int remove(const char* tableName);
+    
+    //string RecordManager::test(const char* tableName)
 };
 
 

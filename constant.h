@@ -14,6 +14,13 @@
 #define EQUAL_GREATER ">="
 #define EQUAL_LESS "<="
 
+#define COND_EQ 0
+#define COND_NE 1
+#define COND_LT 2
+#define COND_GT 3
+#define COND_LE 4
+#define COND_GE 5
+
 using namespace std;
 
 struct Block
