@@ -21,7 +21,7 @@ Interpreter::Interpreter(bool _fromFile): fromFile(_fromFile)
 // Destructor
 Interpreter::~Interpreter()
 {
-    //delete tokenizer;
+    delete tokenizer;
     delete api;
 }
 
@@ -52,9 +52,9 @@ void Interpreter::execute(const char* sql)
     while (endCount--)
     {
         ptr++;
-        if (type[ptr] != Tokenizer::TOKEN_IDENTIFIER && type[ptr] != Tokenizer::TOKEN_END)
+        if (type[ptr] != Tokenizer::FIGURE && type[ptr] != Tokenizer::END)
             reportUnexpected("execute", "instruction");
-        else if (type[ptr] == Tokenizer::TOKEN_END) {}
+        else if (type[ptr] == Tokenizer::END) {}
         else if (tokens[ptr] == "select")
             select();
         else if (tokens[ptr] == "insert")
@@ -81,21 +81,21 @@ void Interpreter::execute(const char* sql)
 void Interpreter::select()
 {
     ptr++;
-    if (tokens[ptr] != "*" || type[ptr] != Tokenizer::TOKEN_SYMBOL)
+    if (tokens[ptr] != "*" || type[ptr] != Tokenizer::SYMBOL)
     {
         reportUnexpected("select", "'*'(MiniSQL does not support selecting specific columns)");
         return;
     }
 
     ptr++;
-    if (tokens[ptr] != "from" || type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+    if (tokens[ptr] != "from" || type[ptr] != Tokenizer::FIGURE)
     {
         reportUnexpected("select", "'from'");
         return;
     }
 
     ptr++;
-    if (type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+    if (type[ptr] != Tokenizer::FIGURE)
     {
         reportUnexpected("select", "table name");
         return;
@@ -125,14 +125,14 @@ void Interpreter::select()
 void Interpreter::insert()
 {
     ptr++;
-    if (tokens[ptr] != "into" || type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+    if (tokens[ptr] != "into" || type[ptr] != Tokenizer::FIGURE)
     {
         reportUnexpected("insert", "'into'");
         return;
     }
 
     ptr++;
-    if (type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+    if (type[ptr] != Tokenizer::FIGURE)
     {
         reportUnexpected("insert", "table name");
         return;
@@ -140,17 +140,17 @@ void Interpreter::insert()
 
     // Prepare insert information
     const char* tableName = tokens[ptr].c_str();
-    vector<string> value;
+    vector<char*> value;
 
     ptr++;
-    if (tokens[ptr] != "values" || type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+    if (tokens[ptr] != "values" || type[ptr] != Tokenizer::FIGURE)
     {
         reportUnexpected("insert", "'values'");
         return;
     }
 
     ptr++;
-    if (tokens[ptr] != "(" || type[ptr] != Tokenizer::TOKEN_SYMBOL)
+    if (tokens[ptr] != "(" || type[ptr] != Tokenizer::SYMBOL)
     {
         reportUnexpected("insert", "'('");
         return;
@@ -159,7 +159,7 @@ void Interpreter::insert()
     while (true)
     {
         ptr++;
-        if (type[ptr] != Tokenizer::TOKEN_NUMBER && type[ptr] != Tokenizer::TOKEN_STRING_SINGLE && type[ptr] != Tokenizer::TOKEN_STRING_DOUBLE)
+        if (type[ptr] != Tokenizer::NUMBER && type[ptr] != Tokenizer::STRING_SINGLE && type[ptr] != Tokenizer::STRING_DOUBLE)
         {
             reportUnexpected("insert", "value");
             return;
@@ -167,9 +167,9 @@ void Interpreter::insert()
         value.push_back(tokens[ptr]);
 
         ptr++;
-        if (tokens[ptr] == ")" && type[ptr] == Tokenizer::TOKEN_SYMBOL)
+        if (tokens[ptr] == ")" && type[ptr] == Tokenizer::SYMBOL)
             break;
-        else if (tokens[ptr] != "," || type[ptr] != Tokenizer::TOKEN_SYMBOL)
+        else if (tokens[ptr] != "," || type[ptr] != Tokenizer::SYMBOL)
         {
             reportUnexpected("insert", "','");
             return;
@@ -177,7 +177,7 @@ void Interpreter::insert()
     }
 
     ptr++;
-    if (type[ptr] != Tokenizer::TOKEN_END)
+    if (type[ptr] != Tokenizer::END)
     {
         reportUnexpected("insert", "';'");
         return;
@@ -199,14 +199,14 @@ void Interpreter::insert()
 void Interpreter::remove()
 {
     ptr++;
-    if (tokens[ptr] != "from" || type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+    if (tokens[ptr] != "from" || type[ptr] != Tokenizer::FIGURE)
     {
         reportUnexpected("delete", "'from'");
         return;
     }
 
     ptr++;
-    if (type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+    if (type[ptr] != Tokenizer::FIGURE)
     {
         reportUnexpected("delete", "table name");
         return;
@@ -236,10 +236,10 @@ void Interpreter::remove()
 bool Interpreter::where(vector<string>* colName, vector<int>* cond, vector<string>* operand)
 {
     ptr++;
-    if (type[ptr] == Tokenizer::TOKEN_END)
+    if (type[ptr] == Tokenizer::END)
         // No condition
         return true;
-    else if (tokens[ptr] != "where" || type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+    else if (tokens[ptr] != "where" || type[ptr] != Tokenizer::FIGURE)
     {
         reportUnexpected("select", "'where'");
         return false;
@@ -249,7 +249,7 @@ bool Interpreter::where(vector<string>* colName, vector<int>* cond, vector<strin
     while (true)
     {
         ptr++;
-        if (type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+        if (type[ptr] != Tokenizer::FIGURE)
         {
             reportUnexpected("select", "column name");
             return false;
@@ -272,7 +272,7 @@ bool Interpreter::where(vector<string>* colName, vector<int>* cond, vector<strin
         cond->push_back(op);
 
         ptr++;
-        if (type[ptr] != Tokenizer::TOKEN_NUMBER && type[ptr] != Tokenizer::TOKEN_STRING_SINGLE && type[ptr] != Tokenizer::TOKEN_STRING_DOUBLE)
+        if (type[ptr] != Tokenizer::NUMBER && type[ptr] != Tokenizer::STRING_SINGLE && type[ptr] != Tokenizer::STRING_DOUBLE)
         {
             reportUnexpected("select", "value");
             return false;
@@ -280,9 +280,9 @@ bool Interpreter::where(vector<string>* colName, vector<int>* cond, vector<strin
         operand->push_back(tokens[ptr]);
 
         ptr++;
-        if (type[ptr] == Tokenizer::TOKEN_END)
+        if (type[ptr] == Tokenizer::END)
             return true;
-        else if (tokens[ptr] != "and" || type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+        else if (tokens[ptr] != "and" || type[ptr] != Tokenizer::FIGURE)
         {
             reportUnexpected("select", "'and'(MiniSQL only supports conjunctive selection)");
             return false;
@@ -294,9 +294,9 @@ bool Interpreter::where(vector<string>* colName, vector<int>* cond, vector<strin
 void Interpreter::create()
 {
     ptr++;
-    if (tokens[ptr] == "table" && type[ptr] == Tokenizer::TOKEN_IDENTIFIER)
+    if (tokens[ptr] == "table" && type[ptr] == Tokenizer::FIGURE)
         createTable();
-    else if (tokens[ptr] == "index" && type[ptr] == Tokenizer::TOKEN_IDENTIFIER)
+    else if (tokens[ptr] == "index" && type[ptr] == Tokenizer::FIGURE)
         createIndex();
     else
         reportUnexpected("create", "'table' or 'index'");
@@ -306,7 +306,7 @@ void Interpreter::create()
 void Interpreter::createTable()
 {
     ptr++;
-    if (type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+    if (type[ptr] != Tokenizer::FIGURE)
     {
         reportUnexpected("createTable", "table name");
         return;
@@ -320,7 +320,7 @@ void Interpreter::createTable()
     vector<char> colUnique;
 
     ptr++;
-    if (tokens[ptr] != "(" || type[ptr] != Tokenizer::TOKEN_SYMBOL)
+    if (tokens[ptr] != "(" || type[ptr] != Tokenizer::SYMBOL)
     {
         reportUnexpected("createTable", "'('");
         return;
@@ -329,21 +329,21 @@ void Interpreter::createTable()
     while (true)
     {
         ptr++;
-        if (tokens[ptr] == "primary" && type[ptr] == Tokenizer::TOKEN_IDENTIFIER)
+        if (tokens[ptr] == "primary" && type[ptr] == Tokenizer::FIGURE)
         {
             bool hasBracket = false;
 
             ptr++;
-            if (tokens[ptr] != "key" || type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+            if (tokens[ptr] != "key" || type[ptr] != Tokenizer::FIGURE)
             {
                 reportUnexpected("createTable", "'key'");
                 return;
             }
 
             ptr++;
-            if (tokens[ptr] == "(" && type[ptr] == Tokenizer::TOKEN_SYMBOL)
+            if (tokens[ptr] == "(" && type[ptr] == Tokenizer::SYMBOL)
                 hasBracket = true;
-            else if (type[ptr] == Tokenizer::TOKEN_IDENTIFIER)
+            else if (type[ptr] == Tokenizer::FIGURE)
             {
                 if (primary != NULL)
                 {
@@ -362,7 +362,7 @@ void Interpreter::createTable()
             if (hasBracket)
             {
                 ptr++;
-                if (type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+                if (type[ptr] != Tokenizer::FIGURE)
                 {
                     reportUnexpected("createTable", "primary key name");
                     return;
@@ -376,14 +376,14 @@ void Interpreter::createTable()
                 primary = tokens[ptr].c_str();
 
                 ptr++;
-                if (tokens[ptr] != ")" || type[ptr] != Tokenizer::TOKEN_SYMBOL)
+                if (tokens[ptr] != ")" || type[ptr] != Tokenizer::SYMBOL)
                 {
                     reportUnexpected("createTable", "')'");
                     return;
                 }
             }
         }
-        else if (type[ptr] == Tokenizer::TOKEN_IDENTIFIER)
+        else if (type[ptr] == Tokenizer::FIGURE)
         {
             colName.push_back(tokens[ptr]);
 
@@ -392,7 +392,7 @@ void Interpreter::createTable()
                 return;
             colType.push_back(t);
 
-            if (tokens[ptr+1] == "unique" && type[ptr+1] == Tokenizer::TOKEN_IDENTIFIER)
+            if (tokens[ptr+1] == "unique" && type[ptr+1] == Tokenizer::FIGURE)
             {
                 ptr++;
                 colUnique.push_back(1);
@@ -407,9 +407,9 @@ void Interpreter::createTable()
         }
 
         ptr++;
-        if (tokens[ptr] == ")" && type[ptr] == Tokenizer::TOKEN_SYMBOL)
+        if (tokens[ptr] == ")" && type[ptr] == Tokenizer::SYMBOL)
             break;
-        else if (tokens[ptr] != "," || type[ptr] != Tokenizer::TOKEN_SYMBOL)
+        else if (tokens[ptr] != "," || type[ptr] != Tokenizer::SYMBOL)
         {
             reportUnexpected("createTable", "','");
             return;
@@ -417,7 +417,7 @@ void Interpreter::createTable()
     }
 
     ptr++;
-    if (type[ptr] != Tokenizer::TOKEN_END)
+    if (type[ptr] != Tokenizer::END)
     {
         reportUnexpected("createTable", "';'");
         return;
@@ -445,7 +445,7 @@ void Interpreter::createTable()
 void Interpreter::createIndex()
 {
     ptr++;
-    if (type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+    if (type[ptr] != Tokenizer::FIGURE)
     {
         reportUnexpected("createIndex", "index name");
         return;
@@ -457,14 +457,14 @@ void Interpreter::createIndex()
     const char* colName;
 
     ptr++;
-    if (tokens[ptr] != "on" || type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+    if (tokens[ptr] != "on" || type[ptr] != Tokenizer::FIGURE)
     {
         reportUnexpected("createIndex", "'on'");
         return;
     }
 
     ptr++;
-    if (type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+    if (type[ptr] != Tokenizer::FIGURE)
     {
         reportUnexpected("createIndex", "index name");
         return;
@@ -472,14 +472,14 @@ void Interpreter::createIndex()
     tableName = tokens[ptr].c_str();
 
     ptr++;
-    if (tokens[ptr] != "(" || type[ptr] != Tokenizer::TOKEN_SYMBOL)
+    if (tokens[ptr] != "(" || type[ptr] != Tokenizer::SYMBOL)
     {
         reportUnexpected("createIndex", "'('");
         return;
     }
 
     ptr++;
-    if (type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+    if (type[ptr] != Tokenizer::FIGURE)
     {
         reportUnexpected("createIndex", "column name");
         return;
@@ -487,14 +487,14 @@ void Interpreter::createIndex()
     colName = tokens[ptr].c_str();
 
     ptr++;
-    if (tokens[ptr] != ")" || type[ptr] != Tokenizer::TOKEN_SYMBOL)
+    if (tokens[ptr] != ")" || type[ptr] != Tokenizer::SYMBOL)
     {
         reportUnexpected("createIndex", "')'");
         return;
     }
 
     ptr++;
-    if (type[ptr] != Tokenizer::TOKEN_END)
+    if (type[ptr] != Tokenizer::END)
     {
         reportUnexpected("createIndex", "';'");
         return;
@@ -516,10 +516,10 @@ void Interpreter::createIndex()
 void Interpreter::drop()
 {
     ptr++;
-    if (tokens[ptr] == "table" && type[ptr] == Tokenizer::TOKEN_IDENTIFIER)
+    if (tokens[ptr] == "table" && type[ptr] == Tokenizer::FIGURE)
     {
         ptr++;
-        if (type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+        if (type[ptr] != Tokenizer::FIGURE)
         {
             reportUnexpected("drop", "table name");
             return;
@@ -527,7 +527,7 @@ void Interpreter::drop()
         const char* tableName = tokens[ptr].c_str();
 
         ptr++;
-        if (type[ptr] != Tokenizer::TOKEN_END)
+        if (type[ptr] != Tokenizer::END)
         {
             reportUnexpected("drop", "';'");
             return;
@@ -544,10 +544,10 @@ void Interpreter::drop()
         if (res && !fromFile)
             cout << "1 table dropped. Query done in " << 1.0 * (toc-tic) / CLOCKS_PER_SEC << "s." << endl;
     }
-    else if (tokens[ptr] == "index" && type[ptr] == Tokenizer::TOKEN_IDENTIFIER)
+    else if (tokens[ptr] == "index" && type[ptr] == Tokenizer::FIGURE)
     {
         ptr++;
-        if (type[ptr] != Tokenizer::TOKEN_IDENTIFIER)
+        if (type[ptr] != Tokenizer::FIGURE)
         {
             reportUnexpected("drop", "index name");
             return;
@@ -555,7 +555,7 @@ void Interpreter::drop()
         const char* indexName = tokens[ptr].c_str();
 
         ptr++;
-        if (type[ptr] != Tokenizer::TOKEN_END)
+        if (type[ptr] != Tokenizer::END)
         {
             reportUnexpected("drop", "';'");
             return;
@@ -580,7 +580,7 @@ void Interpreter::drop()
 void Interpreter::execfile()
 {
     ptr++;
-    if (type[ptr] != Tokenizer::TOKEN_STRING_SINGLE && type[ptr] != Tokenizer::TOKEN_STRING_DOUBLE)
+    if (type[ptr] != Tokenizer::STRING_SINGLE && type[ptr] != Tokenizer::STRING_DOUBLE)
     {
         reportUnexpected("execfile", "a string as filename");
         return;
@@ -588,7 +588,7 @@ void Interpreter::execfile()
     const char* filename = tokens[ptr].c_str();
 
     ptr++;
-    if (type[ptr] != Tokenizer::TOKEN_END)
+    if (type[ptr] != Tokenizer::END)
     {
         reportUnexpected("execfile", "';'");
         return;
@@ -631,7 +631,7 @@ void Interpreter::execfile()
 void Interpreter::exit()
 {
     ptr++;
-    if (type[ptr] != Tokenizer::TOKEN_END)
+    if (type[ptr] != Tokenizer::END)
     {
         reportUnexpected("exit", "';'");
         return;
@@ -670,10 +670,10 @@ int Interpreter::getOperatorType(const char* op)
 short Interpreter::getNextColType()
 {
     ptr++;
-    if (tokens[ptr] == "char" && type[ptr] == Tokenizer::TOKEN_IDENTIFIER)
+    if (tokens[ptr] == "char" && type[ptr] == Tokenizer::FIGURE)
     {
         ptr++;
-        if (tokens[ptr] != "(" || type[ptr] != Tokenizer::TOKEN_SYMBOL)
+        if (tokens[ptr] != "(" || type[ptr] != Tokenizer::SYMBOL)
         {
             reportUnexpected("getNextColType", "'('");
             return TYPE_NULL;
@@ -681,14 +681,14 @@ short Interpreter::getNextColType()
 
         ptr++;
         int len = stoi(tokens[ptr]);
-        if (type[ptr] != Tokenizer::TOKEN_NUMBER || len <= 0 || len > TYPE_CHAR)
+        if (type[ptr] != Tokenizer::NUMBER || len <= 0 || len > TYPE_CHAR)
         {
             reportUnexpected("getNextColType", "1~255");
             return TYPE_NULL;
         }
 
         ptr++;
-        if (tokens[ptr] != ")" || type[ptr] != Tokenizer::TOKEN_SYMBOL)
+        if (tokens[ptr] != ")" || type[ptr] != Tokenizer::SYMBOL)
         {
             reportUnexpected("getNextColType", "')'");
             return TYPE_NULL;
@@ -696,9 +696,9 @@ short Interpreter::getNextColType()
 
         return len;
     }
-    else if (tokens[ptr] == "int" && type[ptr] == Tokenizer::TOKEN_IDENTIFIER)
+    else if (tokens[ptr] == "int" && type[ptr] == Tokenizer::FIGURE)
         return TYPE_INT;
-    else if (tokens[ptr] == "float" && type[ptr] == Tokenizer::TOKEN_IDENTIFIER)
+    else if (tokens[ptr] == "float" && type[ptr] == Tokenizer::FIGURE)
         return TYPE_FLOAT;
     else
     {
@@ -719,5 +719,5 @@ void Interpreter::skipStatement()
 {
     if (ptr < 0)
         ptr = 0;
-    for (; type[ptr] != Tokenizer::TOKEN_END; ptr++);
+    for (; type[ptr] != Tokenizer::END; ptr++);
 }
