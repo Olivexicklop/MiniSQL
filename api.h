@@ -17,7 +17,7 @@ public:
     );
 
     // Insert record. Return true if success
-    bool insert(const char* tableName, const vector<string>* value);
+    bool insert(const char* tableName, const vector<char*>* value);
 
     // Delete record. Return number of records deleted
     int remove(
