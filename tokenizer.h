@@ -11,15 +11,15 @@ class Tokenizer
 public:
 
     // Token type
-    static const int TOKEN_INVALID;
-    static const int TOKEN_IDLE;
-    static const int TOKEN_END;
-    static const int TOKEN_IDENTIFIER;
-    static const int TOKEN_NUMBER;
-    static const int TOKEN_STRING_SINGLE;
-    static const int TOKEN_STRING_DOUBLE;
-    static const int TOKEN_SYMBOL;
-    static const int TOKEN_OPERATOR;
+    static const int INVALID;
+    static const int START;
+    static const int END;
+    static const int FIGURE;
+    static const int NUMBER;
+    static const int STRING_SINGLE;
+    static const int STRING_DOUBLE;
+    static const int SYMBOL;
+    static const int OPERATOR;
 
     // Read all tokens in SQL statement. Return number of semicolons read
     int getTokens(const char* sql, vector<string>* tokens, vector<int>* type);
